@@ -5,7 +5,7 @@
   "scripts": {
     "test": "tsx advent.ts test",
     "real": "tsx advent.ts real",
-    "format": "prettier --write \"**/*.{ts,json,md}\"",
+    "format": "prettier --write \"**/*.{ts,json,md,yml}\"",
     "lint": "eslint --flag unstable_ts_config --fix \"**/*.ts\""
   },
   "license": "ISC",
