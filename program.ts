@@ -3,7 +3,7 @@ import path from "path";
 import { AnswerFunction, Answers } from "./answer.ts";
 
 export async function runWith(day: any, type: "real" | "test"): Promise<void> {
-  day = Number.parseInt(day, 10);
+  day = Number.parseInt(day || 0, 10);
   if (!Number.isInteger(day)) {
     throw Error(`Unknown day "${day}"`);
   }
