@@ -1,5 +1,5 @@
 import { AnswerFunction } from "../../answer.ts";
 
-export const answer: AnswerFunction = ([input]) => {
+export const answer: AnswerFunction = () => {
   return ["", ""];
 };
