@@ -2,8 +2,11 @@ import fs from "fs";
 import path from "path";
 import { AnswerFunction, Answers } from "./answer.ts";
 
-export async function runWith(day: any, type: "real" | "test"): Promise<void> {
-  day = Number.parseInt(day || 0, 10);
+export async function runWith(
+  dayStr: string,
+  type: "real" | "test"
+): Promise<void> {
+  const day = Number.parseInt(dayStr || "0", 10);
   if (!Number.isInteger(day)) {
     throw Error(`Unknown day "${day}"`);
   }
