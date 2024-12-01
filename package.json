@@ -6,7 +6,7 @@
     "test": "tsx advent.ts test",
     "real": "tsx advent.ts real",
     "format": "prettier --write \"**/*.{ts,json,md}\"",
-    "lint": "eslint --fix \"**/*.ts\""
+    "lint": "eslint --flag unstable_ts_config --fix \"**/*.ts\""
   },
   "license": "ISC",
   "author": {
@@ -20,6 +20,7 @@
     "commander": "^12.1.0",
     "eslint": "^9.16.0",
     "eslint-config-prettier": "^9.1.0",
+    "jiti": "^2.4.1",
     "lodash.zip": "^4.2.0",
     "prettier": "^3.4.1",
     "tsx": "^4.19.2",
