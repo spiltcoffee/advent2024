@@ -19,16 +19,16 @@ export async function runWith(
         .filter((a) => !Number.isNaN(a))
         .sort((a, b) => a - b);
 
-  Promise.all(
-    days.map(async (day) => {
-      formatAnswer(
+  (
+    await Promise.all(
+      days.map(async (day) => ({
         day,
-        (await getAnswer(day))(getInputs(day, type), type),
-        getOutputs(day, type),
-        getHintUsed(day)
-      );
-    })
-  );
+        answers: (await getAnswer(day))(getInputs(day, type), type)
+      }))
+    )
+  ).map(({ day, answers }) => {
+    outputAnswer(day, answers, getOutputs(day, type), getHintUsed(day));
+  });
 }
 
 async function getAnswer(day: number): Promise<AnswerFunction> {
@@ -83,7 +83,7 @@ function getHintUsed(day: number): boolean {
   );
 }
 
-function formatAnswer(
+function outputAnswer(
   day: number,
   answerOutputs: Answers,
   expectedOutputs: Array<string | undefined>,
@@ -95,12 +95,12 @@ function formatAnswer(
   if (answerOutputs.every((output) => output === undefined)) {
     console.log("  No parts output by answer");
   } else {
-    formatPart(1, answerOutputs[0], expectedOutputs[0]);
-    formatPart(2, answerOutputs[1], expectedOutputs[1]);
+    outputAnswerPart(1, answerOutputs[0], expectedOutputs[0]);
+    outputAnswerPart(2, answerOutputs[1], expectedOutputs[1]);
   }
 }
 
-function formatPart(
+function outputAnswerPart(
   number: number,
   answerPart: string | undefined,
   expectedPart: string | undefined
