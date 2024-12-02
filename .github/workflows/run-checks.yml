@@ -12,11 +12,10 @@ jobs:
         with:
           node-version: "22.x"
 
-      - shell: bash
-        run: |
-          npm install
-          npm run format
-          npm run lint
+      - run: npm install
+      - run: npm install
+      - run: npm run format
+      - run: npm run lint
 
       - name: check git is clean
         run: |
@@ -29,7 +28,5 @@ jobs:
                 exit 1
             )
 
-      - shell: bash
-        run: |
-          npm run test
-          npm run real
+      - run: npm run test
+      - run: npm run real

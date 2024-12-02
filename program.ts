@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import process from "process";
 import { AnswerFunction, Answers } from "./answer.ts";
 
 export async function runWith(
@@ -19,16 +20,27 @@ export async function runWith(
         .filter((a) => !Number.isNaN(a))
         .sort((a, b) => a - b);
 
-  (
+  const allPass = (
     await Promise.all(
       days.map(async (day) => ({
         day,
         answers: (await getAnswer(day))(getInputs(day, type), type)
       }))
     )
-  ).map(({ day, answers }) => {
-    outputAnswer(day, answers, getOutputs(day, type), getHintUsed(day));
-  });
+  )
+    .map(({ day, answers }) =>
+      checkAndOutputAnswer(
+        day,
+        answers,
+        getOutputs(day, type),
+        getHintUsed(day)
+      )
+    )
+    .every(Boolean);
+
+  if (!allPass) {
+    process.exit(1);
+  }
 }
 
 async function getAnswer(day: number): Promise<AnswerFunction> {
@@ -83,38 +95,43 @@ function getHintUsed(day: number): boolean {
   );
 }
 
-function outputAnswer(
+function checkAndOutputAnswer(
   day: number,
   answerOutputs: Answers,
   expectedOutputs: Array<string | undefined>,
   hintUsed: boolean
-) {
+): boolean {
   const hintUsedText = hintUsed ? " 😓 hint used" : "";
   console.log(`Day ${day}:${hintUsedText}`);
 
   if (answerOutputs.every((output) => output === undefined)) {
     console.log("  No parts output by answer");
+    return false;
   } else {
-    outputAnswerPart(1, answerOutputs[0], expectedOutputs[0]);
-    outputAnswerPart(2, answerOutputs[1], expectedOutputs[1]);
+    return [
+      checkAndOutputAnswerPart(1, answerOutputs[0], expectedOutputs[0]),
+      checkAndOutputAnswerPart(2, answerOutputs[1], expectedOutputs[1])
+    ].every(Boolean);
   }
 }
 
-function outputAnswerPart(
+function checkAndOutputAnswerPart(
   number: number,
   answerPart: string | undefined,
   expectedPart: string | undefined
-) {
+): boolean {
   if (answerPart === undefined) {
-    return;
+    return false;
   }
 
-  const checkedPart = `${answerPart}` === expectedPart ? "✅" : " ";
+  const checked = answerPart === expectedPart;
+  const checkedStr = checked ? "✅" : " ";
 
   const formattedPart =
     typeof answerPart === "string" && answerPart.includes("\n")
       ? `<<EOF\n${answerPart}\nEOF`
       : answerPart;
 
-  console.log(`${checkedPart} Part ${number}: ${formattedPart}`);
+  console.log(`${checkedStr} Part ${number}: ${formattedPart}`);
+  return checked;
 }
