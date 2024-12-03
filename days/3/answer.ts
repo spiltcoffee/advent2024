@@ -5,7 +5,7 @@ const DONT_REGEX = /don't\(\).*?(do\(\)|$)/gs;
 
 function getMultiplierString(input: string): string {
   return Array.from(
-    input.matchAll(MUL_REGEX).map(([_, left, right]) => `${left} * ${right}`)
+    input.matchAll(MUL_REGEX).map(([, left, right]) => `${left} * ${right}`)
   ).join(" + ");
 }
 
