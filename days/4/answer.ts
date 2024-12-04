@@ -15,36 +15,6 @@ class Coordinate {
   }
 }
 
-class WordSearch {
-  private readonly wordsearch: string[][];
-  readonly width: number;
-  readonly height: number;
-
-  constructor(input: string) {
-    this.wordsearch = input
-      .split("\n")
-      .filter(Boolean)
-      .map((row) => row.split(""));
-
-    this.width = this.wordsearch[0].length;
-    this.height = this.wordsearch.length;
-  }
-
-  map<T>(callback: (coord: Coordinate) => T): T[] {
-    return range(this.width).flatMap((x) =>
-      range(this.height).flatMap((y) => callback(new Coordinate(x, y)))
-    );
-  }
-
-  private getCoord(coord: Coordinate): string | undefined {
-    return (this.wordsearch[coord.x] ?? [])[coord.y];
-  }
-
-  checkCoords(coords: Coordinate[]) {
-    return coords.map((coord) => this.getCoord(coord)).join("") === "XMAS";
-  }
-}
-
 enum Direction {
   NORTH_EAST = "NE",
   EAST = "E",
@@ -59,33 +29,97 @@ const DIRECTION_COORDS: Record<Direction, Coordinate> = {
   [Direction.SOUTH]: new Coordinate(-1, 0)
 };
 
-function buildCoordinates(
-  startCoord: Coordinate,
-  direction: Direction
-): Coordinate[] {
-  const directionCoord = DIRECTION_COORDS[direction];
+class WordSearch {
+  private readonly wordsearch: string[][];
+  readonly width: number;
+  readonly height: number;
 
-  return range(3).reduce(
-    (coords) => {
-      return [...coords, coords.at(-1).add(directionCoord)];
-    },
-    [startCoord]
-  );
+  constructor(input: string) {
+    this.wordsearch = input
+      .split("\n")
+      .filter(Boolean)
+      .map((row) => row.split(""));
+
+    this.height = this.wordsearch.length;
+    this.width = this.wordsearch[0].length;
+  }
+
+  map<T>(callback: (coord: Coordinate) => T): T[] {
+    return range(this.height).flatMap((y) =>
+      range(this.width).flatMap((x) => callback(new Coordinate(x, y)))
+    );
+  }
+
+  private getCoord(coord: Coordinate): string | undefined {
+    return (this.wordsearch[coord.y] ?? [])[coord.x];
+  }
+
+  private getStringFromCoords(coords: Coordinate[]): string {
+    return coords
+      .map((coord) => this.getCoord(coord))
+      .filter(Boolean)
+      .join("");
+  }
+
+  private buildDirectionCoordinates(
+    startCoord: Coordinate,
+    direction: Direction
+  ): Coordinate[] {
+    const directionCoord = DIRECTION_COORDS[direction];
+
+    return range(3).reduce(
+      (coords) => {
+        return [...coords, coords.at(-1).add(directionCoord)];
+      },
+      [startCoord]
+    );
+  }
+
+  private checkForXmasLine(coords: Coordinate[]): boolean {
+    return ["XMAS", "SAMX"].includes(this.getStringFromCoords(coords));
+  }
+
+  private checkForMasCross(coords: Coordinate[]): boolean {
+    return ["MSMS", "MMSS", "SMSM", "SSMM"].includes(
+      this.getStringFromCoords(coords)
+    );
+  }
+
+  findXmasLine(
+    startCoord: Coordinate
+  ): Array<{ coords: Coordinate[] } | false> {
+    return Object.values(Direction).map((direction) => {
+      const coords = this.buildDirectionCoordinates(startCoord, direction);
+      return this.checkForXmasLine(coords) ? { coords } : false;
+    });
+  }
+
+  findMasCross(startCoord: Coordinate): { coords: Coordinate[] } | false {
+    if (this.getCoord(startCoord) !== "A") {
+      return false;
+    }
+
+    const coords = [
+      new Coordinate(-1, -1),
+      new Coordinate(1, -1),
+      new Coordinate(-1, 1),
+      new Coordinate(1, 1)
+    ].map((crossCoord) => startCoord.add(crossCoord));
+
+    return this.checkForMasCross(coords) ? { coords } : false;
+  }
 }
 
 export const answer: AnswerFunction = ([input]) => {
   const wordsearch = new WordSearch(input);
 
-  const finds = wordsearch.map((currentCoord) => {
-    return Object.values(Direction).map((direction) => {
-      let coords = buildCoordinates(currentCoord, direction);
+  const xmasLineFinds = wordsearch
+    .map((currentCoord) => wordsearch.findXmasLine(currentCoord))
+    .filter(Boolean).length;
 
-      return wordsearch.checkCoords(coords)
-        ? { coords }
-        : ((coords = coords.toReversed()),
-          wordsearch.checkCoords(coords) ? { coords } : false);
-    });
-  });
+  const maxCrossFinds = wordsearch
+    .map((currentCoord) => wordsearch.findMasCross(currentCoord))
+    .filter(Boolean).length;
 
-  return [finds.filter(Boolean).length.toString(), ""];
+  return [xmasLineFinds.toString(), maxCrossFinds.toString()];
 };
