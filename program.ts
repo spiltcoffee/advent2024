@@ -1,7 +1,9 @@
 import fs from "fs";
 import path from "path";
 import process from "process";
+import { performance, type PerformanceEntry } from "perf_hooks";
 import { AnswerFunction, Answers } from "./answer.ts";
+import { randomUUID } from "crypto";
 
 export async function runWith(
   dayStr: string,
@@ -22,16 +24,24 @@ export async function runWith(
 
   const allPass = (
     await Promise.all(
-      days.map(async (day) => ({
-        day,
-        answers: (await getAnswer(day))(getInputs(day, type), type)
-      }))
+      days.map(async (day) => {
+        let answers: Answers;
+        const measure = await withMeasurement(async () => {
+          answers = (await getAnswer(day))(getInputs(day, type), type);
+        });
+        return {
+          day,
+          answers,
+          measure
+        };
+      })
     )
   )
-    .map(({ day, answers }) =>
+    .map(({ day, answers, measure }) =>
       checkAndOutputAnswer(
         day,
         answers,
+        measure,
         getOutputs(day, type),
         getHintUsed(day)
       )
@@ -40,6 +50,26 @@ export async function runWith(
 
   if (!allPass) {
     process.exit(1);
+  }
+}
+
+async function withMeasurement(
+  callback: () => Promise<void>
+): Promise<PerformanceEntry> {
+  const start = randomUUID();
+  const end = randomUUID();
+  const measure = `${start}->${end}`;
+
+  try {
+    performance.mark(start);
+    await callback();
+    performance.mark(end);
+    performance.measure(measure, start, end);
+    return performance.getEntriesByName(measure)[0];
+  } finally {
+    performance.clearMarks(start);
+    performance.clearMarks(end);
+    performance.clearMeasures(measure);
   }
 }
 
@@ -98,11 +128,12 @@ function getHintUsed(day: number): boolean {
 function checkAndOutputAnswer(
   day: number,
   answerOutputs: Answers,
+  measure: PerformanceEntry,
   expectedOutputs: Array<string | undefined>,
   hintUsed: boolean
 ): boolean {
-  const hintUsedText = hintUsed ? " 😓 hint used" : "";
-  console.log(`Day ${day}:${hintUsedText}`);
+  const hintUsedText = hintUsed ? "😓 hint used" : "";
+  console.log(`Day ${day}: ${Math.ceil(measure.duration)}ms ${hintUsedText}`);
 
   if (answerOutputs.every((output) => output === undefined)) {
     console.log("  No parts output by answer");
