@@ -86,7 +86,7 @@ async function getAnswer(day: number): Promise<AnswerFunction> {
 function getInput(day: number, filename: string): string {
   return fs
     .readFileSync(
-      path.join(import.meta.dirname, `days/${day}/input/${filename}.txt`),
+      path.join(import.meta.dirname, `inputs/2024/${day}/${filename}.txt`),
       "utf8"
     )
     .trimEnd()
