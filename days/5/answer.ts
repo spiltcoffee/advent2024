@@ -2,28 +2,23 @@ import { AnswerFunction } from "../../answer.ts";
 
 class Page {
   readonly pageNum: number;
-  readonly after: Set<Page>;
+  readonly to: Set<Page>;
 
   constructor(pageNum: number) {
     this.pageNum = pageNum;
-    this.after = new Set<Page>();
+    this.to = new Set<Page>();
   }
 
-  addAfter(page: Page) {
-    this.after.add(page);
+  addEdgeTo(page: Page): void {
+    this.to.add(page);
   }
 
-  isUpdateValid(pages: Page[]): boolean {
-    const [headPage, ...tailPages] = pages;
-    if (!this.after.has(headPage)) {
-      return false;
-    }
+  hasEdgeTo(page: Page): boolean {
+    return this.to.has(page);
+  }
 
-    if (!tailPages.length) {
-      return true;
-    }
-
-    return headPage.isUpdateValid(tailPages);
+  hasEdgesTo(pages: Page[]): boolean {
+    return pages.every((page) => this.hasEdgeTo(page));
   }
 }
 
@@ -58,7 +53,7 @@ class PageGraph {
       )
       .map((rule) => pageGraph.getPages(rule))
       .forEach(([fromPage, toPage]) => {
-        fromPage.addAfter(toPage);
+        fromPage.addEdgeTo(toPage);
       });
 
     return pageGraph;
@@ -72,13 +67,29 @@ class Update {
     this.pages = pages;
   }
 
-  isValid(): boolean {
-    const [headPage, ...tailPages] = this.pages;
-    return headPage.isUpdateValid(tailPages);
+  private isPagesValid(pages: Page[]): boolean {
+    return pages.every((page, index) =>
+      page.hasEdgesTo(pages.slice(index + 1))
+    );
   }
 
-  getMiddlePage(): Page {
+  get middlePage(): Page {
     return this.pages[Math.floor(this.pages.length / 2)];
+  }
+
+  isValid(): boolean {
+    return this.isPagesValid(this.pages);
+  }
+
+  fixUpdate(): Update {
+    const fixedPages = [];
+    const pagesToCheck = [...this.pages];
+    while (pagesToCheck.length) {
+      const page = pagesToCheck.shift();
+      (page.hasEdgesTo(pagesToCheck) ? fixedPages : pagesToCheck).push(page);
+    }
+
+    return new Update(fixedPages);
   }
 
   static parseUpdate(updateStr: string, pageGraph: PageGraph) {
@@ -97,11 +108,28 @@ export const answer: AnswerFunction = ([input]) => {
 
   const pageGraph = PageGraph.parsePageRules(pageRules);
 
-  const validUpdateMidPageTotal = updates
+  const { validUpdates, invalidUpdates } = updates
     .split("\n")
     .map((updateStr) => Update.parseUpdate(updateStr, pageGraph))
-    .filter((update) => update.isValid())
-    .reduce((total, update) => total + update.getMiddlePage().pageNum, 0);
+    .reduce<{ validUpdates: Update[]; invalidUpdates: Update[] }>(
+      ({ validUpdates, invalidUpdates }, update) => {
+        (update.isValid() ? validUpdates : invalidUpdates).push(update);
+        return { validUpdates, invalidUpdates };
+      },
+      { validUpdates: [], invalidUpdates: [] }
+    );
 
-  return [validUpdateMidPageTotal.toString(), ""];
+  const validUpdatesMidPageTotal = validUpdates.reduce(
+    (total, update) => total + update.middlePage.pageNum,
+    0
+  );
+
+  const invalidUpdatesMidPageTotal = invalidUpdates
+    .map((update) => update.fixUpdate(pageGraph))
+    .reduce((total, update) => total + update.middlePage?.pageNum, 0);
+
+  return [
+    validUpdatesMidPageTotal.toString(),
+    invalidUpdatesMidPageTotal.toString()
+  ];
 };
