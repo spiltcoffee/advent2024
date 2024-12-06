@@ -30,7 +30,7 @@ class PageGraph {
   }
 
   private getPage(pageNum: number): Page {
-    const page = this.pages.values().find((page) => page.pageNum === pageNum);
+    const page = this.pages.find((page) => page.pageNum === pageNum);
     if (page) {
       return page;
     }
@@ -125,7 +125,7 @@ export const answer: AnswerFunction = ([input]) => {
   );
 
   const invalidUpdatesMidPageTotal = invalidUpdates
-    .map((update) => update.fixUpdate(pageGraph))
+    .map((update) => update.fixUpdate())
     .reduce((total, update) => total + update.middlePage?.pageNum, 0);
 
   return [
