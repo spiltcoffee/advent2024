@@ -4,9 +4,9 @@ const MUL_REGEX = /mul\((\d{1,3}),(\d{1,3})\)/g;
 const DONT_REGEX = /don't\(\).*?(do\(\)|$)/gs;
 
 function getMultiplierString(input: string): string {
-  return Array.from(
-    input.matchAll(MUL_REGEX).map(([, left, right]) => `${left} * ${right}`)
-  ).join(" + ");
+  return Array.from(input.matchAll(MUL_REGEX))
+    .map(([, left, right]) => `${left} * ${right}`)
+    .join(" + ");
 }
 
 function stripDisabled(input: string): string {
