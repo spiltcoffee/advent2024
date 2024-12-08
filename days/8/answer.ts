@@ -11,17 +11,39 @@ class Antenna {
     this.freq = freq;
   }
 
-  findAntinodes(otherAntenna: Antenna): [Coordinate, Coordinate] {
-    return [
-      this.coord.add(otherAntenna.coord.vectorTo(this.coord)),
-      otherAntenna.coord.add(this.coord.vectorTo(otherAntenna.coord))
-    ];
+  markSimpleAntinodes(otherAntenna: Antenna, antinodeMap: AntinodeMap): void {
+    const vector = this.coord.vectorTo(otherAntenna.coord);
+    [
+      otherAntenna.coord.add(vector),
+      this.coord.add(vector.inverseVector())
+    ].forEach((antinode) => antinodeMap.setMapCell(antinode, true));
+  }
+
+  markAdvancedAntinodes(otherAntenna: Antenna, antinodeMap: AntinodeMap): void {
+    const vector = this.coord.vectorTo(otherAntenna.coord);
+    let nextCoord = otherAntenna.coord;
+    while (antinodeMap.isMapCell(nextCoord)) {
+      antinodeMap.setMapCell(nextCoord, true);
+      nextCoord = nextCoord.add(vector);
+    }
+
+    const inverseVector = vector.inverseVector();
+
+    nextCoord = this.coord;
+    while (antinodeMap.isMapCell(nextCoord)) {
+      antinodeMap.setMapCell(nextCoord, true);
+      nextCoord = nextCoord.add(inverseVector);
+    }
   }
 }
 
 class AntinodeMap extends Map<boolean> {
-  constructor(width: number, height: number) {
-    super(width, height, false);
+  static fromDimensions(width: number, height: number): AntinodeMap {
+    return new AntinodeMap(width, height, false);
+  }
+
+  static fromMap(map: Map<unknown>): AntinodeMap {
+    return new AntinodeMap(map, false);
   }
 
   get count(): number {
@@ -31,7 +53,8 @@ class AntinodeMap extends Map<boolean> {
 
 export const answer: AnswerFunction = ([input]) => {
   const lines = input.split("\n").filter(Boolean);
-  const antinodeMap = new AntinodeMap(lines[0].length, lines.length);
+  const simpleMap = AntinodeMap.fromDimensions(lines[0].length, lines.length);
+  const advancedMap = AntinodeMap.fromMap(simpleMap);
 
   const antennas = lines
     .flatMap((row, y) =>
@@ -49,15 +72,15 @@ export const answer: AnswerFunction = ([input]) => {
     const matchingAntennas = antennas.filter(({ freq }) => freq === currFreq);
     while (matchingAntennas.length) {
       const currentAntenna = matchingAntennas.shift();
-      matchingAntennas.forEach((matchingAntenna) =>
-        currentAntenna
-          .findAntinodes(matchingAntenna)
-          .forEach((antinode) => antinodeMap.setMapCell(antinode, true))
-      );
+      matchingAntennas.forEach((matchingAntenna) => {
+        currentAntenna.markSimpleAntinodes(matchingAntenna, simpleMap);
+        currentAntenna.markAdvancedAntinodes(matchingAntenna, advancedMap);
+      });
     }
   });
 
-  const uniqueAntinodes = antinodeMap.count;
+  const simpleAntinodes = simpleMap.count;
+  const advancedAnitnodes = advancedMap.count;
 
-  return [uniqueAntinodes.toString(), ""];
+  return [simpleAntinodes.toString(), advancedAnitnodes.toString()];
 };

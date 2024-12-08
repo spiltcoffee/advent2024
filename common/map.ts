@@ -48,7 +48,7 @@ export class Map<T> {
     return this.isMapCell(coord) ? this.map[coord.y][coord.x] : null;
   }
 
-  setMapCell(coord: Coordinate, value: T) {
+  setMapCell(coord: Coordinate, value: T): void {
     if (this.isMapCell(coord)) {
       this.map[coord.y][coord.x] = value;
     }

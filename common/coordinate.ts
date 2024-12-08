@@ -20,6 +20,10 @@ export class Coordinate {
     return new Coordinate(otherCoord.x - this.x, otherCoord.y - this.y);
   }
 
+  inverseVector(): Coordinate {
+    return new Coordinate(-this.x, -this.y);
+  }
+
   equals(otherCoord: Coordinate): boolean {
     return this.x === otherCoord.x && this.y === otherCoord.y;
   }
