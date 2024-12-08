@@ -1,55 +1,7 @@
 import { AnswerFunction } from "../../answer.ts";
 import { Coordinate } from "../../common/coordinate.ts";
-import { Map } from "../../common/map.ts";
-
-class Antenna {
-  readonly coord: Coordinate;
-  readonly freq: string;
-
-  constructor(coord: Coordinate, freq: string) {
-    this.coord = coord;
-    this.freq = freq;
-  }
-
-  markSimpleAntinodes(otherAntenna: Antenna, antinodeMap: AntinodeMap): void {
-    const vector = this.coord.vectorTo(otherAntenna.coord);
-    [
-      otherAntenna.coord.add(vector),
-      this.coord.add(vector.inverseVector())
-    ].forEach((antinode) => antinodeMap.setMapCell(antinode, true));
-  }
-
-  markAdvancedAntinodes(otherAntenna: Antenna, antinodeMap: AntinodeMap): void {
-    const vector = this.coord.vectorTo(otherAntenna.coord);
-    let nextCoord = otherAntenna.coord;
-    while (antinodeMap.isMapCell(nextCoord)) {
-      antinodeMap.setMapCell(nextCoord, true);
-      nextCoord = nextCoord.add(vector);
-    }
-
-    const inverseVector = vector.inverseVector();
-
-    nextCoord = this.coord;
-    while (antinodeMap.isMapCell(nextCoord)) {
-      antinodeMap.setMapCell(nextCoord, true);
-      nextCoord = nextCoord.add(inverseVector);
-    }
-  }
-}
-
-class AntinodeMap extends Map<boolean> {
-  static fromDimensions(width: number, height: number): AntinodeMap {
-    return new AntinodeMap(width, height, false);
-  }
-
-  static fromMap(map: Map<unknown>): AntinodeMap {
-    return new AntinodeMap(map, false);
-  }
-
-  get count(): number {
-    return this.map.flatMap((row) => row).filter(Boolean).length;
-  }
-}
+import { Antenna } from "./src/antenna.ts";
+import { AntinodeMap } from "./src/antinodeMap.ts";
 
 export const answer: AnswerFunction = ([input]) => {
   const lines = input.split("\n").filter(Boolean);

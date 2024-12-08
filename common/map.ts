@@ -4,7 +4,7 @@ import type { Coordinate } from "./coordinate.ts";
 type DefaultValue<T> = T | (() => T);
 
 export class Map<T> {
-  protected readonly map: T[][];
+  readonly #map: T[][];
   readonly width: number;
   readonly height: number;
 
@@ -21,9 +21,9 @@ export class Map<T> {
     maybeDefaultValue?: DefaultValue<T>
   ) {
     if (Array.isArray(mapOrWidth)) {
-      this.map = mapOrWidth;
-      this.width = this.map[0].length;
-      this.height = this.map.length;
+      this.#map = mapOrWidth;
+      this.width = this.#map[0].length;
+      this.height = this.#map.length;
     } else {
       let defaultValue: T | (() => T);
       if (mapOrWidth instanceof Map) {
@@ -36,7 +36,7 @@ export class Map<T> {
         defaultValue = maybeDefaultValue;
       }
 
-      this.map = range(this.height).map(() =>
+      this.#map = range(this.height).map(() =>
         range(this.width).map(() =>
           defaultValue instanceof Function ? defaultValue() : defaultValue
         )
@@ -45,12 +45,20 @@ export class Map<T> {
   }
 
   getMapCell(coord: Coordinate): T | null {
-    return this.isMapCell(coord) ? this.map[coord.y][coord.x] : null;
+    return this.isMapCell(coord) ? this.#map[coord.y][coord.x] : null;
+  }
+
+  getMapCells(coords: Coordinate[]): Array<T | null> {
+    return coords.map((coord) => this.getMapCell(coord));
+  }
+
+  getAllCells(): Array<T> {
+    return this.#map.flatMap((row) => row);
   }
 
   setMapCell(coord: Coordinate, value: T): void {
     if (this.isMapCell(coord)) {
-      this.map[coord.y][coord.x] = value;
+      this.#map[coord.y][coord.x] = value;
     }
   }
 

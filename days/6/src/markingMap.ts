@@ -8,7 +8,7 @@ export class MarkingMap extends Map<boolean> {
   }
 
   get count(): number {
-    return this.map.flatMap((row) => row).filter(Boolean).length;
+    return this.getAllCells().filter(Boolean).length;
   }
 
   allMarkedBetween(heading: Heading, endCoord: Coordinate): boolean {
