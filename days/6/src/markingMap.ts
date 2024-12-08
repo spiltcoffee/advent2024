@@ -1,13 +1,10 @@
-import range from "lodash.range";
 import { Map } from "./map.ts";
 import type { Coordinate } from "./coordinate.ts";
 import type { Heading } from "./heading.ts";
 
 export class MarkingMap extends Map<boolean> {
   static fromMap(map: Map<unknown>): MarkingMap {
-    return new MarkingMap(
-      range(map.height).map(() => range(map.width).map(() => false))
-    );
+    return new MarkingMap(map, false);
   }
 
   get count(): number {
