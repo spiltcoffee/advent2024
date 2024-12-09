@@ -27,7 +27,7 @@ export async function runWith(
       days.map(async (day) => {
         let answers: Answers;
         const measure = await withMeasurement(async () => {
-          answers = (await getAnswer(day))(getInputs(day, type), type);
+          answers = await (await getAnswer(day))(getInputs(day, type), type);
         });
         return {
           day,
