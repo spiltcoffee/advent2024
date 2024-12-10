@@ -6,10 +6,14 @@ import { AnswerFunction, Answers } from "./answer.ts";
 import { randomUUID } from "crypto";
 
 export async function runWith(
-  dayStr: string,
+  year: number,
+  day: number,
   type: "real" | "test"
 ): Promise<void> {
-  const day = Number.parseInt(dayStr || "0", 10);
+  if (!Number.isInteger(year)) {
+    throw Error(`Unknown year "${year}"`);
+  }
+
   if (!Number.isInteger(day)) {
     throw Error(`Unknown day "${day}"`);
   }
@@ -17,7 +21,7 @@ export async function runWith(
   const days: number[] = day
     ? [day]
     : fs
-        .readdirSync(path.join(import.meta.dirname, "days"))
+        .readdirSync(path.join(import.meta.dirname, year.toString()))
         .map(Number)
         .filter((a) => !Number.isNaN(a))
         .sort((a, b) => a - b);
@@ -27,7 +31,9 @@ export async function runWith(
       days.map(async (day) => {
         let answers: Answers;
         const measure = await withMeasurement(async () => {
-          answers = await (await getAnswer(day))(getInputs(day, type), type);
+          answers = await (
+            await getAnswer(year, day)
+          )(getInputs(year, day, type), type);
         });
         return {
           day,
@@ -42,8 +48,8 @@ export async function runWith(
         day,
         answers,
         measure,
-        getOutputs(day, type),
-        getHintUsed(day)
+        getOutputs(year, day, type),
+        getHintUsed(year, day)
       )
     )
     .every(Boolean);
@@ -73,9 +79,9 @@ async function withMeasurement(
   }
 }
 
-async function getAnswer(day: number): Promise<AnswerFunction> {
+async function getAnswer(year: number, day: number): Promise<AnswerFunction> {
   try {
-    return (await import(`./days/${day}/answer.ts`)).answer;
+    return (await import(`./${year}/${day}/answer.ts`)).answer;
   } catch (error) {
     throw new Error(`Could not get AnswerFunction for day ${day}`, {
       cause: error
@@ -83,29 +89,36 @@ async function getAnswer(day: number): Promise<AnswerFunction> {
   }
 }
 
-function getInput(day: number, filename: string): string {
+function getInput(year: number, day: number, filename: string): string {
   return fs
     .readFileSync(
-      path.join(import.meta.dirname, `inputs/2024/${day}/${filename}.txt`),
+      path.join(import.meta.dirname, `inputs/${year}/${day}/${filename}.txt`),
       "utf8"
     )
     .trimEnd()
     .replace(/\r\n/g, "\n");
 }
 
-function getInputs(day: number, type: string): [string, string] {
+function getInputs(year: number, day: number, type: string): [string, string] {
   try {
-    return [getInput(day, type), ""];
+    return [getInput(year, day, type), ""];
   } catch {
-    return [getInput(day, `${type}-part1`), getInput(day, `${type}-part2`)];
+    return [
+      getInput(year, day, `${type}-part1`),
+      getInput(year, day, `${type}-part2`)
+    ];
   }
 }
 
-function getOutput(day: number, filename: string): string | undefined {
+function getOutput(
+  year: number,
+  day: number,
+  filename: string
+): string | undefined {
   try {
     return fs
       .readFileSync(
-        path.join(import.meta.dirname, `days/${day}/output/${filename}.txt`),
+        path.join(import.meta.dirname, `${year}/${day}/output/${filename}.txt`),
         "utf8"
       )
       .trimEnd()
@@ -115,13 +128,16 @@ function getOutput(day: number, filename: string): string | undefined {
   }
 }
 
-function getOutputs(day: number, type: string): Answers {
-  return [getOutput(day, `${type}-part1`), getOutput(day, `${type}-part2`)];
+function getOutputs(year: number, day: number, type: string): Answers {
+  return [
+    getOutput(year, day, `${type}-part1`),
+    getOutput(year, day, `${type}-part2`)
+  ];
 }
 
-function getHintUsed(day: number): boolean {
+function getHintUsed(year: number, day: number): boolean {
   return fs.existsSync(
-    path.join(import.meta.dirname, `days/${day}/HINT_USED.md`)
+    path.join(import.meta.dirname, `${year}/${day}/HINT_USED.md`)
   );
 }
 

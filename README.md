@@ -1,10 +1,10 @@
-# advent2024
+# advent
 
-My repository of answers for Advent of Code 2024: https://adventofcode.com/2024
+My repository of answers for Advent of Code: https://adventofcode.com/
 
 > [!NOTE]
 >
-> To avoid [AoC copyright issues](https://adventofcode.com/2024/about#faq_copying), the inputs
+> To avoid [AoC copyright issues](https://adventofcode.com/about#faq_copying), the inputs
 > to the answers are in a private repository, referenced via a submodule.
 >
 > If you want to run these answers for yourself, you will need to replicate the following folder
@@ -12,7 +12,7 @@ My repository of answers for Advent of Code 2024: https://adventofcode.com/2024
 >
 > ```
 > inputs/
->   2024/
+>   <year>/
 >     <day>/
 >       real.txt
 >       test.txt
@@ -29,9 +29,15 @@ $ npm run test
 # Run specific day
 $ npm run test 3
 
+# Run specific year
+$ npm run test 3 -- --year 2022
+
 # Use real input
 $ npm run real
 
 # Run specific day
 $ npm run real 3
+
+# Run specific year
+$ npm run real 3 -- --year 2022
 ```
