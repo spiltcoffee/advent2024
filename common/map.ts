@@ -1,5 +1,5 @@
 import range from "lodash.range";
-import type { Coordinate } from "./coordinate.ts";
+import { Coordinate } from "./coordinate.ts";
 
 type DefaultValue<T> = T | (() => T);
 
@@ -49,7 +49,9 @@ export class Map<T> {
   }
 
   getMapCells(coords: Coordinate[]): Array<T | null> {
-    return coords.map((coord) => this.getMapCell(coord));
+    return coords
+      .filter((coord) => this.isMapCell(coord))
+      .map((coord) => this.#map[coord.y][coord.x]);
   }
 
   getAllCells(): Array<T> {
@@ -68,6 +70,12 @@ export class Map<T> {
       coord.x < this.width &&
       coord.y >= 0 &&
       coord.y < this.height
+    );
+  }
+
+  forEachMapCell(callback: (cell: T, coord: Coordinate) => void) {
+    this.#map.forEach((row, y) =>
+      row.forEach((cell, x) => callback(cell, new Coordinate(x, y)))
     );
   }
 }
