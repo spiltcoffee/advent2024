@@ -21,10 +21,8 @@ program
   )
 
   .action(
-    async (mode: "test" | "real", day: number, { year }: { year: number }) => {
-      console.log({ mode, day, year });
-      runWith(year, day, mode);
-    }
+    async (mode: "test" | "real", day: number, { year }: { year: number }) =>
+      runWith(year, day, mode)
   );
 
 await program.parseAsync();
