@@ -11,7 +11,7 @@ const NEARBY_COORDS = [
 ].map(Coordinate.fromDirection);
 
 export class HikingMap extends Map<Trail> {
-  static fromInput(input: String): HikingMap {
+  static fromInput(input: string): HikingMap {
     const hikingMap = new HikingMap(
       input
         .split("\n")
