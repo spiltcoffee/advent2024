@@ -53,15 +53,6 @@ class StoneGraph {
 }
 
 export const answer: AnswerFunction = ([input]) => {
-  // range(25).reduce(
-  //   (stones, timesBlinked) => {
-  //     const newStones = blink(stones);
-  //     console.log(timesBlinked + 1, stones);
-  //     return newStones;
-  //   },
-  //   [0n]
-  // );
-
   const graph = new StoneGraph();
   const startingStones = input
     .trim()
