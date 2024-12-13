@@ -36,12 +36,8 @@ export class Coordinate {
     return new Coordinate(this.x + otherCoord.x, this.y + otherCoord.y);
   }
 
-  vectorToCoord(otherCoord: Coordinate): Coordinate {
-    return new Coordinate(otherCoord.x - this.x, otherCoord.y - this.y);
-  }
-
-  inverseVector(): Coordinate {
-    return new Coordinate(-this.x, -this.y);
+  subtract(otherCoord: Coordinate): Coordinate {
+    return new Coordinate(this.x - otherCoord.x, this.y - otherCoord.y);
   }
 
   equals(otherCoord: Coordinate): boolean {

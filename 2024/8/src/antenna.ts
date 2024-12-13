@@ -1,4 +1,5 @@
 import { Coordinate } from "../../../common/coordinate.ts";
+import { Vector } from "../../../common/vector.ts";
 import { AntinodeMap } from "./antinodeMap.ts";
 
 export class Antenna {
@@ -11,22 +12,21 @@ export class Antenna {
   }
 
   markSimpleAntinodes(otherAntenna: Antenna, antinodeMap: AntinodeMap): void {
-    const vector = this.coord.vectorToCoord(otherAntenna.coord);
-    [
-      otherAntenna.coord.add(vector),
-      this.coord.add(vector.inverseVector())
-    ].forEach((antinode) => antinodeMap.setMapCell(antinode, true));
+    const vector = Vector.fromCoordToCoord(this.coord, otherAntenna.coord);
+    [otherAntenna.coord.add(vector), this.coord.add(vector.inverse())].forEach(
+      (antinode) => antinodeMap.setMapCell(antinode, true)
+    );
   }
 
   markAdvancedAntinodes(otherAntenna: Antenna, antinodeMap: AntinodeMap): void {
-    const vector = this.coord.vectorToCoord(otherAntenna.coord);
+    const vector = Vector.fromCoordToCoord(this.coord, otherAntenna.coord);
     let nextCoord = otherAntenna.coord;
     while (antinodeMap.isMapCell(nextCoord)) {
       antinodeMap.setMapCell(nextCoord, true);
       nextCoord = nextCoord.add(vector);
     }
 
-    const inverseVector = vector.inverseVector();
+    const inverseVector = vector.inverse();
 
     nextCoord = this.coord;
     while (antinodeMap.isMapCell(nextCoord)) {
