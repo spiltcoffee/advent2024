@@ -10,25 +10,22 @@ export class Coordinate {
     this.y = y;
   }
 
+  static readonly ORIGIN = new Coordinate(0, 0);
+
+  private static readonly DIRECTION_COORDINATES: Record<Direction, Coordinate> =
+    {
+      [Direction.NORTH]: new Coordinate(0, -1),
+      [Direction.NORTH_EAST]: new Coordinate(1, -1),
+      [Direction.EAST]: new Coordinate(1, 0),
+      [Direction.SOUTH_EAST]: new Coordinate(1, 1),
+      [Direction.SOUTH]: new Coordinate(0, 1),
+      [Direction.SOUTH_WEST]: new Coordinate(-1, 1),
+      [Direction.WEST]: new Coordinate(-1, 0),
+      [Direction.NORTH_WEST]: new Coordinate(-1, -1)
+    };
+
   static fromDirection(direction: Direction): Coordinate {
-    switch (direction) {
-      case Direction.NORTH:
-        return new Coordinate(0, -1);
-      case Direction.NORTH_EAST:
-        return new Coordinate(1, -1);
-      case Direction.EAST:
-        return new Coordinate(1, 0);
-      case Direction.SOUTH_EAST:
-        return new Coordinate(1, 1);
-      case Direction.SOUTH:
-        return new Coordinate(0, 1);
-      case Direction.SOUTH_WEST:
-        return new Coordinate(-1, 1);
-      case Direction.WEST:
-        return new Coordinate(-1, 0);
-      case Direction.NORTH_WEST:
-        return new Coordinate(-1, -1);
-    }
+    return this.DIRECTION_COORDINATES[direction];
   }
 
   clone(): Coordinate {

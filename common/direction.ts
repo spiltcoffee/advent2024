@@ -8,3 +8,9 @@ export enum Direction {
   WEST = "W",
   NORTH_WEST = "NW"
 }
+
+export type CardinalDirection =
+  | Direction.NORTH
+  | Direction.EAST
+  | Direction.SOUTH
+  | Direction.WEST;
