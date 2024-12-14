@@ -127,10 +127,10 @@ export const answer: AnswerFunction = async ([input], type) => {
   const safetyAfter100s = Robot.calculateSafety(robots, dimensions, 100);
 
   // if (type === "real") {
-  //   const range = await import("lodash.range");
+  //   const { default: range } = await import("lodash.range");
   //   const { mkdir } = await import("fs/promises");
   //   await mkdir(TARGET_DIR, { recursive: true });
-  //   for (const time of range(10000)) {
+  //   for (const time of range(103 * 101)) {
   //     await Robot.drawRobots(robots, dimensions, time);
   //   }
   // }
