@@ -25,7 +25,7 @@ export class Coordinate {
     };
 
   static fromDirection(direction: Direction): Coordinate {
-    return this.DIRECTION_COORDINATES[direction];
+    return Coordinate.DIRECTION_COORDINATES[direction];
   }
 
   clone(): Coordinate {
