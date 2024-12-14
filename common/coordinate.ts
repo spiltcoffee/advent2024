@@ -1,5 +1,10 @@
 import { Direction } from "./direction.ts";
 
+function modulo(n: number, d: number) {
+  // see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Remainder
+  return ((n % d) + d) % d;
+}
+
 export class Coordinate {
   readonly x: number;
   /** This `y` coordinate is "flipped" in comparison to it's usual representation on the Cartesean plane */
@@ -26,6 +31,13 @@ export class Coordinate {
 
   static fromDirection(direction: Direction): Coordinate {
     return Coordinate.DIRECTION_COORDINATES[direction];
+  }
+
+  wrap(limit: Coordinate): Coordinate {
+    return new Coordinate(
+      modulo(this.x, limit.x + 1),
+      modulo(this.y, limit.y + 1)
+    );
   }
 
   clone(): Coordinate {

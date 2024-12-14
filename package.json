@@ -27,6 +27,7 @@
     "lodash.times": "^4.3.2",
     "lodash.zip": "^4.2.0",
     "prettier": "^3.4.1",
+    "pureimage": "^0.4.18",
     "temporal-polyfill": "^0.2.5",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
