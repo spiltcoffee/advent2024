@@ -13,6 +13,7 @@ const CHAR_DIRECTION_MAP: Record<DirectionChar, CardinalDirection> = {
 export const answer: AnswerFunction = ([input]) => {
   const [warehouseInput, directionInput] = input.split("\n\n");
   const warehouse = Warehouse.fromInput(warehouseInput);
+  const wideWarehouse = Warehouse.fromInput(warehouseInput, true);
   const directions = directionInput.split("\n").flatMap((line) =>
     line.split("").map((char: DirectionChar) => {
       const direction = CHAR_DIRECTION_MAP[char];
@@ -23,7 +24,13 @@ export const answer: AnswerFunction = ([input]) => {
     })
   );
 
-  directions.forEach((direction) => warehouse.moveRobot(direction));
+  directions.forEach((direction) => {
+    warehouse.moveRobot(direction);
+  });
 
-  return [warehouse.gpsTotal.toString(), ""];
+  directions.forEach((direction) => {
+    wideWarehouse.moveRobot(direction);
+  });
+
+  return [warehouse.gpsTotal.toString(), wideWarehouse.gpsTotal.toString()];
 };
