@@ -23,15 +23,18 @@ export const answer: AnswerFunction = ([part1, part2], type) => {
           newLine.push("1");
         } else if (currentLine.startsWith("two")) {
           newLine.push("2");
-        } else if (currentLine.startsWith("three")) {          newLine.push("3");
+        } else if (currentLine.startsWith("three")) {
+          newLine.push("3");
         } else if (currentLine.startsWith("four")) {
           newLine.push("4");
         } else if (currentLine.startsWith("five")) {
           newLine.push("5");
         } else if (currentLine.startsWith("six")) {
           newLine.push("6");
-        } else if (currentLine.startsWith("seven")) {          newLine.push("7");
-        } else if (currentLine.startsWith("eight")) {          newLine.push("8");
+        } else if (currentLine.startsWith("seven")) {
+          newLine.push("7");
+        } else if (currentLine.startsWith("eight")) {
+          newLine.push("8");
         } else if (currentLine.startsWith("nine")) {
           newLine.push("9");
         } else {
@@ -48,7 +51,7 @@ export const answer: AnswerFunction = ([part1, part2], type) => {
         .replaceAll(/six/g, "6")
         .replaceAll(/seven/g, "7")
         .replaceAll(/eight/g, "8")
-        .replaceAll(/nine/g, "9")
+        .replaceAll(/nine/g, "9");
     })
   );
 
