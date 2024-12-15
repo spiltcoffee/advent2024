@@ -1,14 +1,22 @@
 import { AnswerFunction } from "../../answer.ts";
 
 class GameSet {
-  private readonly red: number;
-  private readonly green: number;
-  private readonly blue: number;
+  readonly red: number;
+  readonly green: number;
+  readonly blue: number;
 
   private constructor(red: number, green: number, blue: number) {
     this.red = red;
     this.green = green;
     this.blue = blue;
+  }
+
+  static fromObject({
+    red,
+    green,
+    blue
+  }: Record<"red" | "green" | "blue", number>): GameSet {
+    return new GameSet(red, green, blue);
   }
 
   static fromString(setStr: string): GameSet {
@@ -20,11 +28,15 @@ class GameSet {
       },
       { red: 0, green: 0, blue: 0 }
     );
-    return new GameSet(cubes.red, cubes.green, cubes.blue);
+    return GameSet.fromObject(cubes);
   }
 
   isValid(red: number, green: number, blue: number): boolean {
     return this.red <= red && this.green <= green && this.blue <= blue;
+  }
+
+  power(): number {
+    return (this.red || 1) * (this.green || 1) * (this.blue || 1);
   }
 }
 
@@ -48,6 +60,25 @@ class Game {
   isValid(red: number, green: number, blue: number): boolean {
     return this.sets.every((set) => set.isValid(red, green, blue));
   }
+
+  findMinimumSet(): GameSet {
+    const minimums = this.sets.reduce(
+      (minimums, set) => {
+        if (set.red > minimums.red) {
+          minimums.red = set.red;
+        }
+        if (set.green > minimums.green) {
+          minimums.green = set.green;
+        }
+        if (set.blue > minimums.blue) {
+          minimums.blue = set.blue;
+        }
+        return minimums;
+      },
+      { red: 0, green: 0, blue: 0 }
+    );
+    return GameSet.fromObject(minimums);
+  }
 }
 
 export const answer: AnswerFunction = ([input]) => {
@@ -55,5 +86,9 @@ export const answer: AnswerFunction = ([input]) => {
   const sumOfValidIds = games
     .filter((game) => game.isValid(12, 13, 14))
     .reduce((total, game) => total + game.id, 0);
-  return [sumOfValidIds.toString(), ""];
+  const sumOfMinimumPowers = games
+    .map((game) => game.findMinimumSet())
+    .map((gameSet) => gameSet.power())
+    .reduce((total, power) => total + power, 0);
+  return [sumOfValidIds.toString(), sumOfMinimumPowers.toString()];
 };
