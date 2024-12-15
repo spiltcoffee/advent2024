@@ -52,6 +52,10 @@ export class Coordinate {
     return new Coordinate(this.x - otherCoord.x, this.y - otherCoord.y);
   }
 
+  multiply(multiplier: number): Coordinate {
+    return new Coordinate(this.x * multiplier, this.y * multiplier);
+  }
+
   equals(otherCoord: Coordinate): boolean {
     return this.x === otherCoord.x && this.y === otherCoord.y;
   }
