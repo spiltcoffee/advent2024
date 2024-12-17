@@ -3,6 +3,7 @@
     "lib": ["ESNext"],
     "module": "NodeNext",
     "allowImportingTsExtensions": true,
+    "allowSyntheticDefaultImports": true,
     "noEmit": true,
     "esModuleInterop": true
   }

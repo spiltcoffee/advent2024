@@ -1,3 +1,4 @@
+import { Dir } from "fs";
 import { Direction } from "./direction.ts";
 
 function modulo(n: number, d: number) {
@@ -31,6 +32,59 @@ export class Coordinate {
 
   static fromDirection(direction: Direction): Coordinate {
     return Coordinate.DIRECTION_COORDINATES[direction];
+  }
+
+  directionTo(otherCoord: Coordinate, exactMatch = false): Direction {
+    const { x, y } = otherCoord.subtract(this);
+
+    if (y === 0) {
+      if (x > 0) {
+        return Direction.EAST;
+      } else if (x < 0) {
+        return Direction.WEST;
+      }
+    } else if (x === 0) {
+      if (y > 0) {
+        return Direction.SOUTH;
+      } else if (y < 0) {
+        return Direction.NORTH;
+      }
+    } else if (Math.abs(x) === Math.abs(y) && x !== 0) {
+      const xSign = Math.sign(x);
+      const ySign = Math.sign(y);
+      if (ySign > 0) {
+        if (xSign > 0) {
+          return Direction.SOUTH_EAST;
+        } else if (xSign < 0) {
+          return Direction.SOUTH_WEST;
+        }
+      } else if (ySign < 0) {
+        if (xSign > 0) {
+          return Direction.NORTH_EAST;
+        } else if (xSign < 0) {
+          return Direction.NORTH_WEST;
+        }
+      }
+    }
+
+    if (exactMatch) {
+      throw new Error(
+        `Could not find direction between ${this} and ${otherCoord}`
+      );
+    } else {
+      const angle = (Math.atan2(y, x) * 180) / Math.PI;
+      const index = Math.round(angle / 45) + 3;
+      return [
+        Direction.NORTH_WEST,
+        Direction.NORTH,
+        Direction.NORTH_EAST,
+        Direction.EAST,
+        Direction.SOUTH_EAST,
+        Direction.SOUTH,
+        Direction.SOUTH_WEST,
+        Direction.WEST
+      ][index];
+    }
   }
 
   wrap(limit: Coordinate): Coordinate {
