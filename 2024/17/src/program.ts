@@ -1,9 +1,23 @@
 import { modulo } from "../../../common/modulo.ts";
 
-interface Registers {
+class Registers {
   A: number;
   B: number;
   C: number;
+
+  constructor(A: number, B: number, C: number) {
+    this.A = A;
+    this.B = B;
+    this.C = C;
+  }
+
+  clone(): Registers {
+    return new Registers(this.A, this.B, this.C);
+  }
+
+  toString(): string {
+    return `{A: ${this.A.toString(2)} (${this.A}), B: ${this.B.toString(2)} (${this.B}), C: ${this.C.toString(2)} (${this.C})}`;
+  }
 }
 
 export class Program {
@@ -35,14 +49,59 @@ export class Program {
       .split(",")
       .map((str) => Number.parseInt(str, 10));
 
-    return new Program(instructions, { A, B, C });
+    return new Program(instructions, new Registers(A, B, C));
   }
 
-  get output(): string {
-    return this.#output.join();
+  get output(): number[] {
+    return [...this.#output];
   }
 
-  compute(): void {
+  get instructions(): number[] {
+    return [...this.#instructions];
+  }
+
+  compute(): Program {
+    const clone = this.clone();
+    clone.doCompute();
+    return clone;
+  }
+
+  findSelfReferencingA(): number {
+    function arraysEqual<T>(a: T[], b: T[]): boolean {
+      return a.length === b.length && a.every((el, index) => el === b[index]);
+    }
+
+    function findA(
+      program: Program,
+      target: number[] = program.#instructions
+    ): number {
+      let a =
+        target.length > 1
+          ? 8 * findA(program, target.slice(1, target.length))
+          : 0;
+
+      while (!arraysEqual(program.withA(a).doCompute().output, target)) {
+        a++;
+      }
+
+      // console.log({ target, a, aOct: a.toString(8) });
+      return a;
+    }
+
+    return findA(this);
+  }
+
+  withA(A: number): Program {
+    const clone = this.clone();
+    clone.#registers.A = A;
+    return clone;
+  }
+
+  private clone(): Program {
+    return new Program(this.#instructions, this.#registers.clone());
+  }
+
+  private doCompute(): Program {
     while (!this.isHalted) {
       const [opcode, operand] = this.#instructions.slice(
         this.#pointer,
@@ -51,6 +110,7 @@ export class Program {
       this.handleOpcode(opcode, operand);
       this.#pointer += 2;
     }
+    return this;
   }
 
   private get isHalted() {
@@ -72,7 +132,7 @@ export class Program {
         this.jnz(operand);
         break;
       case 4:
-        this.bxc(operand);
+        this.bxc();
         break;
       case 5:
         this.out(operand);
@@ -130,7 +190,7 @@ export class Program {
     this.#pointer = operand - 2;
   }
 
-  private bxc(_operand: number): void {
+  private bxc(): void {
     this.#registers.B = this.#registers.B ^ this.#registers.C;
   }
 

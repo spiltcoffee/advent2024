@@ -1,5 +1,5 @@
 import { Direction } from "./direction.ts";
-import { modulo } from "./maths.ts";
+import { modulo } from "./modulo.ts";
 
 export class Coordinate {
   readonly x: number;
