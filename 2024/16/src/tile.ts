@@ -54,35 +54,50 @@ export abstract class Tile {
       (otherPath) => direction === otherPath.direction
     );
 
-    if (!existing) {
-      this.paths.push(new Path(distance, direction, parent));
-      this.paths.sort((a, b) => a.distance - b.distance);
-      return true;
-    } else if (distance < existing.distance) {
-      existing.distance = distance;
-      existing.parent = parent;
-      this.paths.sort((a, b) => a.distance - b.distance);
+    try {
+      if (!existing) {
+        this.paths.push(new Path(distance, direction, parent));
+        return true;
+      } else if (distance < existing.distance) {
+        existing.distance = distance;
+      }
       return false;
+    } finally {
+      this.paths.sort((a, b) => a.distance - b.distance);
     }
   }
 
-  getShortestPath(nextTile: Tile): Tile[] {
+  getShortestPaths(nextTile: Tile): Tile[][] {
     if (!this.paths.length) {
       throw new Error(`Paths are not defined for ${this}`);
     }
 
-    const toDirection = this.directionTo(nextTile);
+    let shortestPaths: Path[];
 
-    const preferredPath = this.paths
-      .toSorted(
-        (a, b) =>
-          a.distance +
-          (a.direction !== toDirection ? 1000 : 0) -
-          (b.distance + (b.direction !== toDirection ? 1000 : 0))
-      )
-      .at(0);
+    if (!nextTile) {
+      shortestPaths = this.paths.filter(
+        ({ distance }) => distance === this.distance
+      );
+    } else {
+      const toDirection = this.directionTo(nextTile);
+      const nextPaths = this.paths
+        .filter((path) => path.parent !== nextTile)
+        .map((path) => ({
+          nextDistance:
+            path.distance + (path.direction === toDirection ? 1 : 1001),
+          path
+        }))
+        .toSorted((a, b) => a.nextDistance - b.nextDistance);
 
-    return preferredPath.parent.getShortestPath(this).concat(this);
+      const shortestNextDistance = nextPaths.at(0)?.nextDistance || Infinity;
+      shortestPaths = nextPaths
+        .filter(({ nextDistance }) => shortestNextDistance === nextDistance)
+        .map(({ path }) => path);
+    }
+
+    return shortestPaths
+      .flatMap(({ parent }) => parent.getShortestPaths(this))
+      .map((path) => path.concat(this));
   }
 
   distanceTo(otherTile: Tile): number {
@@ -105,7 +120,7 @@ export abstract class Tile {
       .getMapCells(
         Tile.NEIGHBOUR_COORDS.map((coord) => coord.add(this.#coordinate))
       )
-      .filter((tile) => tile.movable && tile.paths.length < 3)
+      .filter((tile) => tile.movable && tile.paths.length <= 3)
       .forEach((neighbour) => {
         if (
           !neighbour.addPath(

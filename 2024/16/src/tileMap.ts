@@ -72,17 +72,12 @@ export class TileMap extends Map<Tile> {
     }
   }
 
-  findShortestPath(): void {
+  findShortestPaths(): void {
     const unvisited = [...this.movableTiles];
 
     let nextTile = this.sortAndPopClosestTile(unvisited);
-    while (!(nextTile instanceof EndTile)) {
-      if (!nextTile) {
-        throw new Error("Ran out of tiles to visit!");
-      }
-
+    while (nextTile) {
       nextTile.visitNeighbours(this, unvisited);
-
       nextTile = this.sortAndPopClosestTile(unvisited);
     }
   }
@@ -123,9 +118,11 @@ export class TileMap extends Map<Tile> {
     });
 
     this.endTile
-      .getShortestPath()
-      .forEach(({ coordinate: { x, y } }) =>
-        ctx.fillPixelWithColor(x, y, 0x00ffffff)
+      .getShortestPaths()
+      .forEach((path) =>
+        path.forEach(({ coordinate: { x, y } }) =>
+          ctx.fillPixelWithColor(x, y, 0x00ffffff)
+        )
       );
 
     await pureimage.encodePNGToStream(

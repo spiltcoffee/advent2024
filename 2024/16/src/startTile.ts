@@ -14,7 +14,7 @@ export class StartTile extends Tile {
     return this.directionTo(otherTile) === Direction.EAST ? 1 : 1001;
   }
 
-  getShortestPath(): Tile[] {
-    return [this];
+  getShortestPaths(): Tile[][] {
+    return [[this]];
   }
 }

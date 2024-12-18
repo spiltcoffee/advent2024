@@ -1,4 +1,3 @@
-import { Dir } from "fs";
 import { Direction } from "./direction.ts";
 
 function modulo(n: number, d: number) {
