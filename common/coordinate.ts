@@ -1,9 +1,5 @@
 import { Direction } from "./direction.ts";
-
-function modulo(n: number, d: number) {
-  // see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Remainder
-  return ((n % d) + d) % d;
-}
+import { modulo } from "./maths.ts";
 
 export class Coordinate {
   readonly x: number;
