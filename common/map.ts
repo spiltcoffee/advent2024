@@ -1,7 +1,7 @@
 import range from "lodash.range";
 import { Coordinate } from "./coordinate.ts";
 
-type DefaultValue<T> = T | (() => T);
+type DefaultValue<T> = T | ((coordinate: Coordinate) => T);
 
 export class Map<T> {
   readonly #map: T[][];
@@ -12,9 +12,9 @@ export class Map<T> {
   protected constructor(
     width: number,
     height: number,
-    defaultValue?: T | (() => T)
+    defaultValue?: DefaultValue<T>
   );
-  protected constructor(map: Map<unknown>, defaultValue?: T | (() => T));
+  protected constructor(map: Map<unknown>, defaultValue?: DefaultValue<T>);
   protected constructor(
     mapOrWidth: T[][] | Map<unknown> | number,
     heightOrDefaultValue?: number | DefaultValue<T>,
@@ -25,7 +25,7 @@ export class Map<T> {
       this.width = this.#map[0].length;
       this.height = this.#map.length;
     } else {
-      let defaultValue: T | (() => T);
+      let defaultValue: DefaultValue<T>;
       if (mapOrWidth instanceof Map) {
         this.width = mapOrWidth.width;
         this.height = mapOrWidth.height;
@@ -36,9 +36,11 @@ export class Map<T> {
         defaultValue = maybeDefaultValue;
       }
 
-      this.#map = range(this.height).map(() =>
-        range(this.width).map(() =>
-          defaultValue instanceof Function ? defaultValue() : defaultValue
+      this.#map = range(this.height).map((y) =>
+        range(this.width).map((x) =>
+          defaultValue instanceof Function
+            ? defaultValue(new Coordinate(x, y))
+            : defaultValue
         )
       );
     }
