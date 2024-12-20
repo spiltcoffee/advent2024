@@ -5,6 +5,7 @@
     "allowImportingTsExtensions": true,
     "allowSyntheticDefaultImports": true,
     "noEmit": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "experimentalDecorators": true
   }
 }
