@@ -1,8 +1,20 @@
 import { Coordinate } from "../../../common/coordinate.ts";
-import { Map } from "../../../common/map.ts";
+import { DefaultValue, Map } from "../../../common/map.ts";
 import { Space } from "./space.ts";
 
 export class MemorySpace extends Map<Space> {
+  readonly #remainingBytes: Coordinate[];
+
+  private constructor(
+    width: number,
+    height: number,
+    defaultValue: DefaultValue<Space>,
+    remainingBytes: Coordinate[]
+  ) {
+    super(width, height, defaultValue);
+    this.#remainingBytes = remainingBytes;
+  }
+
   static fromInput(input: string, params: string) {
     const [width, height, bytesToSimulate] = params
       .split(",")
@@ -18,8 +30,10 @@ export class MemorySpace extends Map<Space> {
               number
             ])
           )
-      )
-      .slice(0, bytesToSimulate);
+      );
+
+    const initialBytes = blockedBytes.slice(0, bytesToSimulate);
+    const remainingBytes = blockedBytes.slice(bytesToSimulate);
 
     return new MemorySpace(
       width,
@@ -27,8 +41,9 @@ export class MemorySpace extends Map<Space> {
       (coordinate) =>
         new Space(
           coordinate,
-          blockedBytes.some((blockedByte) => blockedByte.equals(coordinate))
-        )
+          initialBytes.some((blockedByte) => blockedByte.equals(coordinate))
+        ),
+      remainingBytes
     );
   }
 
@@ -73,5 +88,24 @@ export class MemorySpace extends Map<Space> {
       nextSpace.visitNeighbours(this);
       nextSpace = this.sortAndPopClosestSpace(unvisited);
     }
+  }
+
+  resetPaths(): void {
+    this.getAllCells().forEach((space) => {
+      space.distance = Infinity;
+      space.parent = null;
+    });
+  }
+
+  findFirstBlockingByte(): Coordinate {
+    this.findShortestPath();
+    let nextByte: Coordinate;
+    do {
+      nextByte = this.#remainingBytes.shift();
+      this.getMapCell(nextByte).blocked = true;
+      this.resetPaths();
+      this.findShortestPath();
+    } while (Number.isFinite(this.endSpace.distance));
+    return nextByte;
   }
 }

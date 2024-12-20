@@ -1,7 +1,7 @@
 import range from "lodash.range";
 import { Coordinate } from "./coordinate.ts";
 
-type DefaultValue<T> = T | ((coordinate: Coordinate) => T);
+export type DefaultValue<T> = T | ((coordinate: Coordinate) => T);
 
 export class Map<T> {
   readonly #map: T[][];
