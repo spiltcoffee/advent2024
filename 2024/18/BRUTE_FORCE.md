@@ -1,0 +1,1 @@
+Takes about 2-3 minutes on my old PC to run part 2. Seen some better answers around, but I'll keep the brute force answer as it was my first success on part 2 here, and I didn't figure out the better answer for myself.

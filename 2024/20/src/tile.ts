@@ -60,7 +60,7 @@ export class Tile {
           otherTile,
           cheat:
             Math.abs(this.distance - otherTile.distance) -
-            Coordinate.getManDistance(this.#coordinate, otherTile.#coordinate)
+            Coordinate.taxicabBetween(this.#coordinate, otherTile.#coordinate)
         };
       })
       .filter(({ cheat }) => cheat >= minimumCheat)

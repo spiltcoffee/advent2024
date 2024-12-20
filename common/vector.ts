@@ -1,13 +1,11 @@
 import { BigNumber } from "bignumber.js";
 import { Coordinate } from "./coordinate.ts";
 import { Direction } from "./direction.ts";
+import { Memoize } from "fast-typescript-memoize";
 
 type Radians = number;
 
 export class Vector extends Coordinate {
-  #magnitude: number;
-  #angle: Radians;
-
   constructor(x: number, y: number) {
     super(x, y);
   }
@@ -43,7 +41,11 @@ export class Vector extends Coordinate {
    * @param beta Angle adjacent to output
    * @returns The magnitude of the side opposite to the alpha angle
    */
-  static magnitudeFromAngleSideAngle(alpha: number, mag: number, beta: number) {
+  static magnitudeFromAngleSideAngle(
+    alpha: number,
+    mag: number,
+    beta: number
+  ): number {
     return new BigNumber(mag)
       .multipliedBy(new BigNumber(Math.sin(alpha) / Math.sin(alpha + beta)))
       .toNumber();
@@ -73,30 +75,23 @@ export class Vector extends Coordinate {
     return new Vector(this.x * multiplier, this.y * multiplier);
   }
 
+  @Memoize()
   get magnitude(): number {
-    if (this.#magnitude === undefined) {
-      const x = new BigNumber(this.x);
-      const y = new BigNumber(this.y);
-      this.#magnitude = x.pow(2).plus(y.pow(2)).sqrt().toNumber();
-    }
-    return this.#magnitude;
+    return Coordinate.magnitudeBetween(this, Coordinate.ORIGIN);
   }
 
+  @Memoize()
   get angle(): Radians {
-    if (this.#angle === undefined) {
-      if (this.x === 0) {
-        if (this.y === 0) {
-          this.#angle = NaN;
-        } else if (this.y > 0) {
-          this.#angle = 90;
-        } else {
-          this.#angle = 270;
-        }
+    if (this.x === 0) {
+      if (this.y === 0) {
+        return NaN;
+      } else if (this.y > 0) {
+        return 90;
       } else {
-        this.#angle = Math.atan(this.y / this.x);
+        return 270;
       }
+    } else {
+      return Math.atan(this.y / this.x);
     }
-
-    return this.#angle;
   }
 }

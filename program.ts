@@ -28,28 +28,34 @@ export async function runWith(
 
   const allPass = (
     await Promise.all(
-      days.map(async (day) => {
+      days.map(async (day, _index, array) => {
         let answers: Answers;
+        const bruteForce = getBruteForce(year, day) && array.length > 1;
         const measure = await withMeasurement(async () => {
-          answers = await (
-            await getAnswer(year, day)
-          )(getInputs(year, day, type), type);
+          answers = bruteForce
+            ? getOutputs(year, day, type)
+            : await (
+                await getAnswer(year, day)
+              )(getInputs(year, day, type), type);
         });
+
         return {
           day,
           answers,
-          measure
+          measure,
+          bruteForce
         };
       })
     )
   )
-    .map(({ day, answers, measure }) =>
+    .map(({ day, answers, measure, bruteForce }) =>
       checkAndOutputAnswer(
         day,
         answers,
         measure,
         getOutputs(year, day, type),
-        getHintUsed(year, day)
+        getHintUsed(year, day),
+        bruteForce
       )
     )
     .every(Boolean);
@@ -141,15 +147,35 @@ function getHintUsed(year: number, day: number): boolean {
   );
 }
 
+function getBruteForce(year: number, day: number): boolean {
+  return fs.existsSync(
+    path.join(import.meta.dirname, `${year}/${day}/BRUTE_FORCE.md`)
+  );
+}
+
 function checkAndOutputAnswer(
   day: number,
   answerOutputs: Answers,
   measure: PerformanceEntry,
   expectedOutputs: Array<string | undefined>,
-  hintUsed: boolean
+  hintUsed: boolean,
+  bruteForce: boolean
 ): boolean {
   const hintUsedText = hintUsed ? "😓 hint used" : "";
-  console.log(`Day ${day}: ${Math.ceil(measure.duration)}ms ${hintUsedText}`);
+  const bruteForceUsedText = bruteForce
+    ? "🥵 brute force used (run this day alone to actually execute)"
+    : "";
+
+  console.log(
+    [
+      `Day ${day}:`,
+      `${Math.ceil(measure.duration)}ms`,
+      hintUsedText,
+      bruteForceUsedText
+    ]
+      .filter(Boolean)
+      .join(" ")
+  );
 
   if (answerOutputs.every((output) => output === undefined)) {
     console.log("  No parts output by answer");

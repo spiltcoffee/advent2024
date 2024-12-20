@@ -1,3 +1,4 @@
+import { BigNumber } from "bignumber.js";
 import { Direction } from "./direction.ts";
 import { modulo } from "./modulo.ts";
 
@@ -29,8 +30,16 @@ export class Coordinate {
     return Coordinate.DIRECTION_COORDINATES[direction];
   }
 
-  static getManDistance(first: Coordinate, second: Coordinate): number {
+  static taxicabBetween(first: Coordinate, second: Coordinate): number {
     return Math.abs(first.x - second.x) + Math.abs(first.y - second.y);
+  }
+
+  static magnitudeBetween(first: Coordinate, second: Coordinate): number {
+    return new BigNumber(first.x - second.x)
+      .pow(2)
+      .plus(new BigNumber(first.y - second.y).pow(2))
+      .sqrt()
+      .toNumber();
   }
 
   directionTo(otherCoord: Coordinate, exactMatch = false): Direction {

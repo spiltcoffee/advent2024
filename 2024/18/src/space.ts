@@ -7,6 +7,7 @@ export class Space {
   #blocked: boolean = false;
   #distance: number = Infinity;
   #parent: Space = null;
+  #heuristic: number;
 
   static readonly NEIGHBOUR_COORDS = [
     Direction.NORTH,
@@ -15,9 +16,10 @@ export class Space {
     Direction.WEST
   ].map(Coordinate.fromDirection);
 
-  constructor(coordinate: Coordinate, blocked: boolean) {
+  constructor(coordinate: Coordinate, blocked: boolean, heuristic: number) {
     this.#coordinate = coordinate;
     this.#blocked = blocked;
+    this.#heuristic = heuristic;
   }
 
   get blocked(): boolean {
@@ -42,6 +44,10 @@ export class Space {
 
   set parent(parent: Space) {
     this.#parent = parent;
+  }
+
+  get heuristic(): number {
+    return this.#heuristic + this.#distance;
   }
 
   visitNeighbours(map: MemorySpace): void {
