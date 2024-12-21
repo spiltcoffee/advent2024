@@ -6,6 +6,7 @@ import { FloorTile } from "./floorTile.ts";
 import { StartTile } from "./startTile.ts";
 import { Tile } from "./tile.ts";
 import { WallTile } from "./wallTile.ts";
+import range from "lodash.range";
 
 export class RaceTrack extends Map<Tile> {
   static fromInput(input: string): RaceTrack {
@@ -30,19 +31,28 @@ export class RaceTrack extends Map<Tile> {
     return raceTrack;
   }
 
-  getTotalCheatsAtOrAbove(minimumCheat: number) {
-    return this.getAllCells()
-      .filter((tile) => tile instanceof WallTile)
-      .reduce(
-        (totalCheats, wallTile) =>
-          totalCheats + wallTile.getTotalCheatsAtOrAbove(this, minimumCheat),
-        0
-      );
+  private buildTilesToScan(cheatDistance: number): Coordinate[] {
+    const yTileDistance = cheatDistance + 1;
+    const tiles = range(yTileDistance).map((y) => {
+      const xTileDistance = yTileDistance - Math.abs(y);
+      return range(xTileDistance * -1 + 1, xTileDistance)
+        .filter((x) => y > 1 || (y > 0 && Math.abs(x) > 1) || x > 1)
+        .map((x) => new Coordinate(x, y));
+    });
+
+    return tiles.flatMap((row) => row);
   }
 
-  @Memoize()
-  private get endTile(): Tile {
-    return this.getAllCells().find((tile) => tile instanceof EndTile);
+  getTotalCheatsAtOrAbove(cheatDistance: number, minimumCheat: number) {
+    const tilesToScan = this.buildTilesToScan(cheatDistance);
+
+    const cheats = this.getAllCells()
+      .filter((tile) => tile.movable)
+      .flatMap((tiles) =>
+        tiles.getTotalCheatsAtOrAbove(this, tilesToScan, minimumCheat)
+      );
+
+    return cheats.length;
   }
 
   @Memoize()
