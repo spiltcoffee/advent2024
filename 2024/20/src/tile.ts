@@ -29,7 +29,7 @@ export class Tile {
     return true;
   }
 
-  protected get coordinate(): Coordinate {
+  get coordinate(): Coordinate {
     return this.#coordinate;
   }
 
@@ -43,5 +43,29 @@ export class Tile {
       .find(
         (neighbour) => neighbour.movable && neighbour.distance > this.distance
       );
+  }
+
+  getTotalCheatsAtOrAbove(
+    map: RaceTrack,
+    tilesToScan: Coordinate[],
+    minimumCheat: number
+  ): number[] {
+    const cheats = map
+      .getMapCells(
+        tilesToScan.map((tileToScan) => tileToScan.add(this.#coordinate))
+      )
+      .filter((otherTile) => otherTile.movable)
+      .map((otherTile) => {
+        return {
+          otherTile,
+          cheat:
+            Math.abs(this.distance - otherTile.distance) -
+            Coordinate.getManDistance(this.#coordinate, otherTile.#coordinate)
+        };
+      })
+      .filter(({ cheat }) => cheat >= minimumCheat)
+      .map(({ cheat }) => cheat);
+
+    return cheats;
   }
 }

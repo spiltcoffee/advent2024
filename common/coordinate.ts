@@ -29,6 +29,10 @@ export class Coordinate {
     return Coordinate.DIRECTION_COORDINATES[direction];
   }
 
+  static getManDistance(first: Coordinate, second: Coordinate): number {
+    return Math.abs(first.x - second.x) + Math.abs(first.y - second.y);
+  }
+
   directionTo(otherCoord: Coordinate, exactMatch = false): Direction {
     const { x, y } = otherCoord.subtract(this);
 
