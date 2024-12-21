@@ -30,7 +30,7 @@ export class RaceTrack extends Map<Tile> {
     return raceTrack;
   }
 
-  getTotalCheatsAtOrAbove(minimumCheat: number) {
+  getTotalCheatsAtOrAbove(cheatDistance: number, minimumCheat: number) {
     return this.getAllCells()
       .filter((tile) => tile instanceof WallTile)
       .reduce(
