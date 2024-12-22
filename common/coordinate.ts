@@ -1,6 +1,10 @@
-import { BigNumber } from "bignumber.js";
+import { Dir } from "fs";
 import { Direction } from "./direction.ts";
-import { modulo } from "./modulo.ts";
+
+function modulo(n: number, d: number) {
+  // see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Remainder
+  return ((n % d) + d) % d;
+}
 
 export class Coordinate {
   readonly x: number;
@@ -28,18 +32,6 @@ export class Coordinate {
 
   static fromDirection(direction: Direction): Coordinate {
     return Coordinate.DIRECTION_COORDINATES[direction];
-  }
-
-  static taxicabBetween(first: Coordinate, second: Coordinate): number {
-    return Math.abs(first.x - second.x) + Math.abs(first.y - second.y);
-  }
-
-  static magnitudeBetween(first: Coordinate, second: Coordinate): number {
-    return new BigNumber(first.x - second.x)
-      .pow(2)
-      .plus(new BigNumber(first.y - second.y).pow(2))
-      .sqrt()
-      .toNumber();
   }
 
   directionTo(otherCoord: Coordinate, exactMatch = false): Direction {
