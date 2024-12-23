@@ -10,7 +10,10 @@ export class LanParty {
       .split("\n")
       .forEach((pair) =>
         lanParty.addPeers(
-          ...(pair.split("-", 2).map(name => Computer.from(name)) as [Computer, Computer])
+          ...(pair.split("-", 2).map((name) => Computer.from(name)) as [
+            Computer,
+            Computer
+          ])
         )
       );
 
@@ -20,6 +23,7 @@ export class LanParty {
   addPeers(aPeer: Computer, bPeer: Computer): void {
     aPeer.addPeer(bPeer);
     bPeer.addPeer(aPeer);
+    this.#peers.add(aPeer).add(bPeer);
   }
 
   findNetworks(): Set<string> {

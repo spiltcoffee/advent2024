@@ -33,12 +33,15 @@ export class Computer {
 
   static findNetworks(aPeer: Computer, bPeer: computer): Set<string> {
     return new Set(
-      aPeer.#peers.intersection(bPeer.#peers).map((cPeer) =>
-        [aPeer, bPeer, cPeer]
-          .map(({ name }) => name)
-          .sort()
-          .join()
-      )
+      aPeer.#peers
+        .intersection(bPeer.#peers)
+        .values()
+        .map((cPeer) =>
+          [aPeer, bPeer, cPeer]
+            .map(({ name }) => name)
+            .sort()
+            .join()
+        )
     );
   }
 }
